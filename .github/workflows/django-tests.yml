@@ -1,0 +1,41 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ main, master, "**" ]   # run on all branches
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install django; fi
+
+      # IMPORTANT: manage.py is in kosmos_core/, so run commands in that dir
+      - name: Run migrations + tests
+        working-directory: kosmos_core
+        env:
+          DJANGO_SETTINGS_MODULE: kosmos_core.settings
+        run: |
+          python manage.py migrate --noinput
+          python manage.py test -v 2
