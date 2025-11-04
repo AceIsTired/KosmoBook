@@ -1,39 +1,43 @@
+# .github/workflows/django-tests.yml
 name: Django CI
 
 on:
   push:
-    branches: [ main, master, "**" ]
+    branches: [ main, master, "**" ]   # run on all branches
   pull_request:
     branches: [ main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.11"
+          cache: 'pip'         # caches pip packages (safe). Not Python itself.
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install django; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install django
+          fi
 
-      # manage.py is in kosmos_core/
+      # IMPORTANT: your manage.py is in kosmos_core/
       - name: Run migrations + tests
         working-directory: kosmos_core
         env:
           DJANGO_SETTINGS_MODULE: kosmos_core.settings
         run: |
           python manage.py migrate --noinput
-          # Force test discovery by module path (rock-solid):
+          # Force-discover your tests to avoid namespace hiccups
           python manage.py test apps.appointments.tests.test_booking -v 2
