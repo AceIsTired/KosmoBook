@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'apps.appointments',
     'apps.registration',
     'crispy_forms', # installed for registration
-    'crispy_bootstrap4', # installed for registration
+    # 'crispy_bootstrap4', # installed for registration
 ]
 
 CRISPY_ALLLOWED_TEMPLATE_PACKS = "bootstrap4"
@@ -141,3 +141,4 @@ AUTH_USER_MODEL = 'users.BaseUser'
 LOGIN_URL = 'login'  # name of the login url
 LOGIN_REDIRECT_URL = 'registration:profile'  # optional: redirect after login
 LOGOUT_REDIRECT_URL = 'login'  # optional: redirect after logout
+
