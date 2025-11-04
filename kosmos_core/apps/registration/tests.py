@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from apps.users.models import BaseUser
 
-# found these online, done
+# found these online, done but still editing
 
 # class registration_tests(TestCase):
 #     def start(self):
