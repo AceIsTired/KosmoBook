@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.media_feed',
     'apps.appointments',
     'apps.registration',
+    'apps.home',
     'crispy_forms', # installed for registration
     # 'crispy_bootstrap4', # installed for registration
 ]
@@ -138,6 +139,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.BaseUser'
 
+APPEND_SLASH = True
 LOGIN_URL = 'login'  # name of the login url
 LOGIN_REDIRECT_URL = 'registration:profile'  # optional: redirect after login
 LOGOUT_REDIRECT_URL = 'login'  # optional: redirect after logout
