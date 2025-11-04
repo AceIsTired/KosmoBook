@@ -45,8 +45,14 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.notifications',
     'apps.media_feed',
-    'apps.appointments'
+    'apps.appointments',
+    'apps.registration',
+    'crispy_forms', # installed for registration
+    'crispy_bootstrap4', # installed for registration
 ]
+
+CRISPY_ALLLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -63,7 +69,7 @@ ROOT_URLCONF = 'kosmos_core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,3 +137,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.BaseUser'
+
+LOGIN_URL = 'login'  # name of the login url
+LOGIN_REDIRECT_URL = 'registration:profile'  # optional: redirect after login
+LOGOUT_REDIRECT_URL = 'login'  # optional: redirect after logout
