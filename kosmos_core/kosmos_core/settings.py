@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.notifications',
     'apps.media_feed',
-    'apps.appointments'
+    'apps.appointments',
+    'apps.registration',
+    'apps.home',
 ]
 
 MIDDLEWARE = [
@@ -63,7 +65,7 @@ ROOT_URLCONF = 'kosmos_core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,3 +133,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.BaseUser'
+
+APPEND_SLASH = True
