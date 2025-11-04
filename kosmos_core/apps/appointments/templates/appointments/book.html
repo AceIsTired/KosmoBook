@@ -1,0 +1,7 @@
+<!-- apps/appointments/templates/appointments/book.html -->
+<h1>Book with {{ professional.username }}</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Book</button>
+</form>
