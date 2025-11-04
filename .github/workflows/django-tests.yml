@@ -1,9 +1,8 @@
-# .github/workflows/django-tests.yml
 name: Django CI
 
 on:
   push:
-    branches: [ main, master, "**" ]   # run on all branches
+    branches: [ "**" ]       # run on all branches
   pull_request:
     branches: [ main, master ]
 
@@ -18,8 +17,8 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: 'pip'         # caches pip packages (safe). Not Python itself.
+          python-version: "3.11"   # <- use 3.11 (or 3.12/3.13 if all deps support)
+          cache: pip               # cache pip packages automatically
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
@@ -32,12 +31,12 @@ jobs:
             pip install django
           fi
 
-      # IMPORTANT: your manage.py is in kosmos_core/
+      # manage.py is inside kosmos_core/
       - name: Run migrations + tests
         working-directory: kosmos_core
         env:
           DJANGO_SETTINGS_MODULE: kosmos_core.settings
         run: |
           python manage.py migrate --noinput
-          # Force-discover your tests to avoid namespace hiccups
+          # force-discover tests using the module path that worked locally
           python manage.py test apps.appointments.tests.test_booking -v 2
