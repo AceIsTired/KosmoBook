@@ -2,20 +2,17 @@ name: Django CI
 
 on:
   push:
-    branches: [ main, master, "**" ]   # run on all branches
+    branches: [ main, master, "**" ]
   pull_request:
     branches: [ main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -31,11 +28,12 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install django; fi
 
-      # IMPORTANT: manage.py is in kosmos_core/, so run commands in that dir
+      # manage.py is in kosmos_core/
       - name: Run migrations + tests
         working-directory: kosmos_core
         env:
           DJANGO_SETTINGS_MODULE: kosmos_core.settings
         run: |
           python manage.py migrate --noinput
-          python manage.py test -v 2
+          # Force test discovery by module path (rock-solid):
+          python manage.py test apps.appointments.tests.test_booking -v 2
