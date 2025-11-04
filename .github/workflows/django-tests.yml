@@ -1,10 +1,12 @@
-name: Django CI
+name: Django CI (feature branch)
 
 on:
   push:
-    branches: [ "**" ]       # run on all branches
+    branches: [ your-branch-name ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
+    paths:
+      - '**'  # allow PRs from your branch into main to run this workflow too
 
 jobs:
   test:
@@ -17,26 +19,23 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"   # <- use 3.11 (or 3.12/3.13 if all deps support)
-          cache: pip               # cache pip packages automatically
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+          python-version: "3.11"   # stable pick
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           else
-            pip install django
+            pip install "Django>=4.2,<5.0"
           fi
 
-      # manage.py is inside kosmos_core/
-      - name: Run migrations + tests
+      # manage.py lives in kosmos_core/
+      - name: Run migrations + targeted tests
         working-directory: kosmos_core
         env:
           DJANGO_SETTINGS_MODULE: kosmos_core.settings
         run: |
           python manage.py migrate --noinput
-          # force-discover tests using the module path that worked locally
+          # Use the exact module path that works locally to avoid discovery hiccups
           python manage.py test apps.appointments.tests.test_booking -v 2
