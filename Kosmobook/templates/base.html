@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kosmobook{% endblock %}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        h1 {
+            @apply pb-7 text-4xl font-bold text-center text-purple-950 mt-10
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header>
+        <div class="bg-amber-300 pl-4 mt-4 font-bold">
+            Kosmobook - Connect with Beauty Professionals
+        </div>
+    </header>
+
+    <main class="min-h-screen">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-neutral-900 px-5 py-5 mt-8">
+        <div class="flex justify-between">
+            <p class="text-neutral-300 font-thin italic">
+                Kosmobook
+            </p>
+            <p class="text-neutral-300 font-thin italic">
+                Jamari Ross, Shania Phillips, and Tyrone Bartholomew
+            </p>
+        </div>
+    </footer>
+    
+    {% if messages %}
+    <div class="fixed top-4 right-4 space-y-2">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-500{% else %}bg-red-500{% endif %} text-white">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+</html>
