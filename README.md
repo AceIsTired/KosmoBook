@@ -1,0 +1,1 @@
+This branch is to hold a copy of the main before the rework of the entire project. Do not touch or alter as it will be used as a reference for the rework and as a backup in the event that reworking files causes a major error of some sort
