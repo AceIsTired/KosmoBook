@@ -43,7 +43,7 @@ class ProfileViewTests(TestCase):
         self.assertEqual(profile_form.cleaned_data['location'], 'Los Angeles, CA')
 
         tech_form = TechnicianDetailsForm(data={
-            'specialty': 'makeup',
+            'specialty': 'makeup_artist',
             'years_of_experience': 3,
             'licensed': True
         })
@@ -113,4 +113,5 @@ class ProfileViewTests(TestCase):
 #         self.user.refresh_from_db()
 
 #         self.assertIsNotNone(self.user.profile_picture)
+
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
