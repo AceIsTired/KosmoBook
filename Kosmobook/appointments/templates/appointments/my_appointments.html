@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-4">
+  <h1 class="mb-3">My Appointments</h1>
+
+
+  <h2 class="h4 mt-4">Upcoming Appointments</h2>
+  {% if upcoming_appointments %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Professional</th>
+          <th>Date & Time</th>
+          <th>Duration</th>
+          <th>Status</th>
+          <th>Actions</th>  
+        </tr>
+      </thead>
+      <tbody>
+        {% for appt in upcoming_appointments %}
+          <tr>
+            <td>{{ appt.professional.username }}</td>
+            <td>{{ appt.scheduled_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ appt.duration_minutes }} min</td>
+            <td>{{ appt.get_status_display }}</td>
+
+            
+            <td>
+
+              <!-- EDIT button -->
+              {% if appt.status != "cancelled" and appt.status != "completed" %}
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'edit_appointment' appt.id %}">Edit</a>
+              {% endif %}
+
+              <!-- CANCEL button -->
+              {% if appt.status != "cancelled" and appt.status != "completed" %}
+                <a class="btn btn-sm btn-danger" href="{% url 'cancel_appointment' appt.id %}">Cancel</a>
+              {% endif %}
+              
+              {% if appt.status == "cancelled" or appt.status == "completed" %}
+                <span class="badge bg-secondary">{{ appt.get_status_display }}</span>
+              {% endif %}
+            </td>
+            
+
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>You have no upcoming appointments.</p>
+  {% endif %}
+
+  
+  <h2 class="h4 mt-5">Past Appointments</h2>
+  {% if past_appointments %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Professional</th>
+          <th>Date & Time</th>
+          <th>Duration</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appt in past_appointments %}
+          <tr>
+            <td>{{ appt.professional.username }}</td>
+            <td>{{ appt.scheduled_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ appt.duration_minutes }} min</td>
+            <td>{{ appt.get_status_display }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No past appointments.</p>
+  {% endif %}
+</div>
+{% endblock %}

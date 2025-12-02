@@ -153,20 +153,19 @@ def edit_appointment(request, appointment_id):
     # Handle incoming POST changes
     if request.method == "POST":
         form = AppointmentForm(request.POST, instance=appt)
-        
-        appt.client = appt.client
-        appt.professional = appt.professional
 
         if form.is_valid():
             updated = form.save(commit=False)
-            updated.full_clean()     # triggers overlap, business hours, duration checks
+            updated.full_clean()  # run overlap/business rules
             updated.save()
+
             messages.success(request, "Appointment updated successfully!")
 
             if request.user == appt.professional:
                 return redirect("professional_appointments")
             else:
                 return redirect("my_appointments")
+
 
     # GET request: show form pre-filled
     else:

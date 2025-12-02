@@ -6,15 +6,20 @@ from appointments.models import Appointment
 
 User = get_user_model()
 
-
 class AppointmentActionsTest(TestCase):
 
     def setUp(self):
         self.client_user = User.objects.create_user(
-            username="client", password="pass"
+            username="client",
+            password="pass",
+            is_initialized=True
         )
+
         self.prof_user = User.objects.create_user(
-            username="pro", password="pass"
+            username="pro",
+            password="pass",
+            is_technician=True,
+            is_initialized=True
         )
 
         self.appt = Appointment.objects.create(
@@ -25,15 +30,17 @@ class AppointmentActionsTest(TestCase):
             status="pending"
         )
 
+
+
     def test_professional_can_confirm(self):
         self.client.login(username="pro", password="pass")
         url = reverse("confirm_appointment", args=[self.appt.id])
 
-        response = self.client.get(url)
+        response = self.client.get(url, follow=True)
         self.appt.refresh_from_db()
 
         self.assertEqual(self.appt.status, "confirmed")
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_client_cannot_cancel_after_start(self):
         self.appt.scheduled_time = timezone.now() - timezone.timedelta(hours=1)
@@ -42,16 +49,19 @@ class AppointmentActionsTest(TestCase):
         self.client.login(username="client", password="pass")
         url = reverse("cancel_appointment", args=[self.appt.id])
 
-        response = self.client.get(url)
+        response = self.client.get(url, follow=True)
         self.appt.refresh_from_db()
 
         self.assertNotEqual(self.appt.status, "cancelled")
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_edit_appointment_updates_time(self):
         self.client.login(username="client", password="pass")
 
-        new_time = timezone.now() + timezone.timedelta(hours=5)
+        new_time = (timezone.now() + timezone.timedelta(days=1)).replace(
+            hour=10, minute=0, second=0, microsecond=0
+        )
+
         url = reverse("edit_appointment", args=[self.appt.id])
 
         response = self.client.post(url, {
