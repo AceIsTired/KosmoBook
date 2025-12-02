@@ -28,6 +28,30 @@ class ProfileViewTests(TestCase):
         url = reverse("profile", kwargs={"username": "unknownuser"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+        
+# lets integrate this test later on
+# def test_setup_forms(self):
+
+#     user_type_form = UserTypeForm(data={'user_type': 'user'})
+#     self.assertTrue(user_type_form.is_valid())
+#     self.assertEqual(user_type_form.cleaned_data['user_type'], 'user')
+
+#     profile_form = ProfileInfoForm(data={
+#         'location': 'Los Angeles, CA',
+#         'bio': 'I am a beauty enthusiast'
+#     })
+#     self.assertTrue(profile_form.is_valid())
+#     self.assertEqual(profile_form.cleaned_data['location'], 'Los Angeles, CA')
+
+#     tech_form = TechnicianDetailsForm(data={
+#         'specialty': 'makeup',
+#         'years_of_experience': 3,
+#         'licensed': True
+#     })
+#     self.assertTrue(tech_form.is_valid())
+#     self.assertEqual(tech_form.cleaned_data['specialty'], 'makeup')
+#     self.assertTrue(tech_form.cleaned_data['licensed'])
+        
 
 # Some profile tests that we can run once the profile is connected to the home page and login down below
 
@@ -91,4 +115,5 @@ class ProfileViewTests(TestCase):
 
 #         self.assertIsNotNone(self.user.profile_picture)
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
+
 
