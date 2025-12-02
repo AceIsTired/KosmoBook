@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container" style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+
+    <!-- Profile Header -->
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <!-- Profile Picture -->
+        <div>
+            {% if profile_user.profile_picture %}
+                <img src="{{ profile_user.profile_picture.url }}"
+                     alt="Profile Picture"
+                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+            {% else %}
+                <img src="{% static 'default_profile.jpg' %}"
+                     alt="Default Profile Picture"
+                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+            {% endif %}
+        </div>
+
+        <!-- Username, Edit Button & Bio -->
+        <div>
+            <h2 style="margin: 0;">{{ profile_user.username }}</h2>
+
+            {% if request.user == profile_user %}
+                <a href="{% url 'edit_profile' %}"
+                   style="display: inline-block; margin-top: 10px; padding: 5px 15px; 
+                          border: 1px solid #ccc; border-radius: 8px; text-decoration: none;">
+                    Edit Profile
+                </a>
+            {% endif %}
+
+            {% if profile_user.bio %}
+                <p style="margin-top: 10px;">{{ profile_user.bio }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats (mocked at 0 for now) -->
+    <div style="display: flex; justify-content: space-around; margin-top: 20px; padding: 10px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+        <div><strong>0</strong><br>Posts</div>
+        <div><strong>0</strong><br>Followers</div>
+        <div><strong>0</strong><br>Following</div>
+    </div>
+
+    <!-- Technician Info -->
+    {% if profile_user.is_technician %}
+    <div style="margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 10px; background-color: #fafafa;">
+        <h3>Technician Info</h3>
+        <p><strong>Specialty:</strong> {{ profile_user.get_specialty_display }}</p>
+        <p><strong>Rating:</strong> ⭐ {{ profile_user.rating }}</p>
+        <p><strong>Location:</strong> {{ profile_user.location }}</p>
+        <p><strong>Years of Experience:</strong> {{ profile_user.years_of_experience }}</p>
+        <p><strong>Licensed:</strong> {{ profile_user.licensed|yesno:"Yes,No" }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Posts Grid (empty for now) -->
+    <div style="margin-top: 30px;">
+        <h3>Posts</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+            <!-- Loop through user posts -->
+            <div style="background-color: #eee; height: 100px; display: flex; align-items: center; justify-content: center;">
+                No posts yet
+            </div>
+            <div style="background-color: #eee; height: 100px;"></div>
+            <div style="background-color: #eee; height: 100px;"></div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
