@@ -22,7 +22,7 @@ class ProfileViewTests(TestCase):
         url = reverse("users:profile", kwargs={"username": self.user.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "sphillips")
+        self.assertContains(response, self.user.username)
 
     # error page if there's no user account 
     def test_profile_404_if_user_not_found(self):
@@ -117,6 +117,7 @@ class ProfileViewTests(TestCase):
 #         self.assertIsNotNone(self.user.profile_picture)
 
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
+
 
 
 
