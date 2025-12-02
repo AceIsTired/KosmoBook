@@ -155,9 +155,8 @@ def edit_appointment(request, appointment_id):
     if request.method == "POST":
         form = AppointmentForm(request.POST, instance=appt)
         
-        # these were causing testing errors
-        # appt.client = appt.client
-        # appt.professional = appt.professional
+        appt.client = appt.client
+        appt.professional = appt.professional
 
         if form.is_valid():
             updated = form.save(commit=False)
