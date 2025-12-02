@@ -17,6 +17,8 @@ class ProfileViewTests(TestCase):
 
     # check that the profile page works for users with a profile
     def test_profile_page_loads_successfully(self):
+        self.client.login(username="sphillips", password="Tulane2027")
+        
         url = reverse("users:profile", kwargs={"username": self.user.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -115,6 +117,7 @@ class ProfileViewTests(TestCase):
 #         self.assertIsNotNone(self.user.profile_picture)
 
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
+
 
 
 
