@@ -1,3 +1,94 @@
 from django.test import TestCase
+from django.contrib.auth import get_user_model
+import tempfile
+from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 
-# Create your tests here.
+User = get_user_model()
+
+
+class ProfileViewTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="sphillips",
+            password="Tulane2027",
+            email="sphillips3@tulane.edu"
+        )
+
+    # check that the profile page works for users with a profile
+    def test_profile_page_loads_successfully(self):
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "sphillips")
+
+    # error page if there's no user account 
+    def test_profile_404_if_user_not_found(self):
+        url = reverse("profile", kwargs={"username": "unknownuser"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+# Some profile tests that we can run once the profile is connected to the home page and login down below
+
+# class EditProfileTests(TestCase):
+
+#     def setUp(self):
+#         self.user = User.objects.create_user(
+#             username="sphillips",
+#             password="Tulane2027",
+#             email="sphillips3@tulane.edu"
+#         )
+
+#     def test_edit_profile_requires_login(self):
+#         url = reverse("edit_profile")
+#         response = self.client.get(url)
+#         self.assertNotEqual(response.status_code, 200)
+#         self.assertEqual(response.status_code, 302)  # redirect to login
+#         self.assertIn("/login", response.url)
+
+#     def test_logged_in_user_can_view_edit_page(self):
+#         self.client.login(username="sphillips", password="Tulane2027")
+#         url = reverse("edit_profile")
+#         response = self.client.get(url)
+#         self.assertEqual(response.status_code, 200)
+#         self.assertContains(response, "form")
+
+#     def test_user_can_update_profile(self):
+#         self.client.login(username="sphillips", password="Tulane2027")
+
+#         url = reverse("edit_profile")
+#         response = self.client.post(url, {
+#             "bio": "Updated bio",
+#             "location": "New Orleans",
+#             "years_of_experience": 3,
+#         })
+
+#         # Reload user from database
+#         self.user.refresh_from_db()
+
+#         self.assertEqual(self.user.bio, "Updated bio")
+#         self.assertEqual(self.user.location, "New Orleans")
+#         self.assertEqual(self.user.years_of_experience, 3)
+
+#     def test_user_can_upload_profile_picture(self):
+#         self.client.login(username="sphillips", password="Tulane2027")
+
+#         url = reverse("edit_profile")
+
+#         image = SimpleUploadedFile(
+#             "test.jpg",
+#             b"fake-image-content",
+#             content_type="image/jpeg"
+#         )
+
+#         response = self.client.post(url, {
+#             "bio": "Updated bio with picture",
+#             "profile_picture": image
+#         })
+
+#         self.user.refresh_from_db()
+
+#         self.assertIsNotNone(self.user.profile_picture)
+#         self.assertIn("test.jpg", self.user.profile_picture.name)
+
