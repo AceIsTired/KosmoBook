@@ -17,7 +17,7 @@
                 <a href="{% url 'home' %}" class="text-gray-900 hover:text-purple-600 px-3 py-2 text-sm font-medium border-b-2 border-purple-600">Home</a>
                 <a href="#" class="text-gray-500 hover:text-purple-600 px-3 py-2 text-sm font-medium">Feed</a>
                 <a href="#" class="text-gray-500 hover:text-purple-600 px-3 py-2 text-sm font-medium">Appointments</a>
-                <a href="#" class="text-gray-500 hover:text-purple-600 px-3 py-2 text-sm font-medium">Profile</a>
+                <a href="{% url 'users:profile' username=request.user.username %}" class="text-gray-500 hover:text-purple-600 px-3 py-2 text-sm font-medium">Profile</a>
             </nav>
 
             <!-- Search Bar -->

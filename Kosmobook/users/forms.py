@@ -18,3 +18,21 @@ class UserRegistration(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username',
+            'email',
+            'bio',
+            'profile_picture',
+            'date_of_birth',
+            'location',
+            'specialty',
+            'years_of_experience',
+            'licensed',
+        ]
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 3}),
+        }
