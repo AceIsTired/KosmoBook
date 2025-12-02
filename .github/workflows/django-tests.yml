@@ -30,9 +30,9 @@ jobs:
 
       # manage.py is in kosmos_core/
       - name: Run migrations + tests
-        working-directory: KosmoBook
+        working-directory: Kosmobook
         env:
-          DJANGO_SETTINGS_MODULE: KosmoBook.settings
+          DJANGO_SETTINGS_MODULE: Kosmobook.settings
         run: |
           python manage.py migrate --noinput
           # Force test discovery by module path (rock-solid):
