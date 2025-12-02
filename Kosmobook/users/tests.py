@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from users.setup_forms import UserTypeForm, ProfileInfoForm, TechnicianDetailsForm
 import tempfile
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -114,6 +115,7 @@ class ProfileViewTests(TestCase):
 
 #         self.assertIsNotNone(self.user.profile_picture)
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
+
 
 
 
