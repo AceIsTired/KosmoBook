@@ -1,0 +1,1 @@
+The templates folder holds (most) of the html pages for the site, if you're not jamari, change at your own risk!

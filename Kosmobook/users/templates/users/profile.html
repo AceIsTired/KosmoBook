@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }} - Kosmobook{% endblock %}
+
+{% block content %}
+<!-- Header (same as home.html) -->
+<header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="shrink-0">
+                <h1 class="text-xl font-bold text-purple-900">Kosmobook</h1>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex space-x-8">
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-purple-600 px-3 py-2 text-sm font-medium">Home</a>
+                <a href="#" class="text-gray-500 hover:text-purple-600 px-3 py-2 text-sm font-medium">Feed</a>
+                <a href="#" class="text-gray-500 hover:text-purple-600 px-3 py-2 text-sm font-medium">Appointments</a>
+                <a href="{% url 'users:profile' username=request.user.username %}" 
+                   class="text-gray-900 hover:text-purple-600 px-3 py-2 text-sm font-medium border-b-2 border-purple-600">Profile</a>
+            </nav>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-md mx-8">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Search professionals, services..." 
+                        class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                        🔍
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="flex items-center space-x-4">
+                <form method="post" action="{% url 'logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="max-w-4xl mx-auto py-8 px-6">
+    <!-- Profile Header Card -->
+    <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
+        <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+            <!-- Profile Picture -->
+            <div class="flex-shrink-0">
+                {% if profile_user.profile_picture %}
+                    <img src="{{ profile_user.profile_picture.url }}"
+                         alt="Profile Picture"
+                         class="w-40 h-40 rounded-full object-cover border-4 border-gray-100">
+                {% else %}
+                    <div class="w-40 h-40 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center border-4 border-gray-100">
+                        <span class="text-4xl">👤</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Profile Info -->
+            <div class="flex-1">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ profile_user.username }}</h2>
+                        <p class="text-gray-600 mt-1">{{ profile_user.bio|default:"No bio yet" }}</p>
+                        <p class="text-gray-500 text-sm mt-2 flex items-center">
+                            📍 {{ profile_user.location|default:"Location not set" }}
+                        </p>
+                    </div>
+                    
+                    {% if request.user == profile_user %}
+                        <a href="{% url 'users:edit_profile' %}"
+                           class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            ✏️ Edit Profile
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Stats -->
+                <div class="flex space-x-12 border-t border-gray-200 pt-6">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900">0</div>
+                        <div class="text-sm text-gray-500">📝 Posts</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900">0</div>
+                        <div class="text-sm text-gray-500">👥 Followers</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900">0</div>
+                        <div class="text-sm text-gray-500">👣 Following</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technician Info Card (if applicable) -->
+    {% if profile_user.is_technician %}
+    <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">👩‍⚕️ Professional Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <p class="text-sm text-gray-500">🎨 Specialty</p>
+                <p class="font-medium text-gray-900">{{ profile_user.get_specialty_display }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">⭐ Rating</p>
+                <p class="font-medium text-gray-900">⭐ {{ profile_user.rating|default:"Not rated yet" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">📅 Years of Experience</p>
+                <p class="font-medium text-gray-900">{{ profile_user.years_of_experience }} years</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">📜 License Status</p>
+                <p class="font-medium text-gray-900">
+                    {% if profile_user.licensed %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            ✅ Licensed
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            ❌ Not Licensed
+                        </span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Posts Section -->
+    <div class="bg-white rounded-xl shadow-sm border p-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">📸 Posts</h3>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <p class="text-gray-400 text-3xl">🖼️</p>
+            </div>
+            <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <p class="text-gray-400 text-3xl">🎨</p>
+            </div>
+            <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <p class="text-gray-400 text-3xl">💄</p>
+            </div>
+            <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <p class="text-gray-400 text-3xl">✂️</p>
+            </div>
+            <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <p class="text-gray-400 text-3xl">💇</p>
+            </div>
+            <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <p class="text-gray-400 text-3xl">💅</p>
+            </div>
+        </div>
+        
+        {% if request.user == profile_user %}
+            <div class="mt-8 text-center">
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    ➕ Create Post
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
