@@ -1,47 +1,39 @@
-name: Django Tests
+name: Django CI
 
 on:
   push:
+    branches: [ 'KOSMOS-28-As-a-vendor-I-am-able-to-view-my-and-manage-my-appointments-confirm-cancel-complete' ]
   pull_request:
+    branches: [ 'KOSMOS-28-As-a-vendor-I-am-able-to-view-my-and-manage-my-appointments-confirm-cancel-complete' ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12" ]
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          path: .
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt   # <-- points to the file you added
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install psycopg2-binary
 
-      - name: Run migrations
-        run: python manage.py migrate
-
-      - name: Run tests
-        run: python manage.py test
+      - name: Run migrations + tests
+        working-directory: Kosmobook              # <-- manage.py lives here
+        env:
+          DJANGO_SETTINGS_MODULE: Kosmobook.settings
+        run: |
+          python manage.py migrate --noinput
+          python manage.py test -v 2
+          
