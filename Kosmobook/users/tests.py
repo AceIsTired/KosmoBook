@@ -15,16 +15,21 @@ class ProfileViewTests(TestCase):
             email="sphillips3@tulane.edu"
         )
 
+        self.user.is_initialized = True
+        self.user.save()
+
     # check that the profile page works for users with a profile
     def test_profile_page_loads_successfully(self):
-        url = reverse("profile", kwargs={"username": self.user.username})
+        self.client.login(username="sphillips", password="Tulane2027")
+        
+        url = reverse("users:profile", kwargs={"username": self.user.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "sphillips")
+        self.assertContains(response, self.user.username)
 
     # error page if there's no user account 
     def test_profile_404_if_user_not_found(self):
-        url = reverse("profile", kwargs={"username": "unknownuser"})
+        url = reverse("users:profile", kwargs={"username": "unknownuser"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -43,12 +48,12 @@ class ProfileViewTests(TestCase):
         self.assertEqual(profile_form.cleaned_data['location'], 'Los Angeles, CA')
 
         tech_form = TechnicianDetailsForm(data={
-            'specialty': 'makeup',
+            'specialty': 'makeup_artist',
             'years_of_experience': 3,
             'licensed': True
         })
         self.assertTrue(tech_form.is_valid())
-        self.assertEqual(tech_form.cleaned_data['specialty'], 'makeup')
+        self.assertEqual(tech_form.cleaned_data['specialty'], 'makeup_artist')
         self.assertTrue(tech_form.cleaned_data['licensed'])
 
 
@@ -113,4 +118,5 @@ class ProfileViewTests(TestCase):
 #         self.user.refresh_from_db()
 
 #         self.assertIsNotNone(self.user.profile_picture)
+
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
