@@ -15,8 +15,8 @@ class ProfileViewTests(TestCase):
             email="sphillips3@tulane.edu"
         )
 
-    self.user.is_initialized = True
-    self.user.save()
+        self.user.is_initialized = True
+        self.user.save()
 
     # check that the profile page works for users with a profile
     def test_profile_page_loads_successfully(self):
@@ -120,6 +120,7 @@ class ProfileViewTests(TestCase):
 #         self.assertIsNotNone(self.user.profile_picture)
 
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
+
 
 
 
