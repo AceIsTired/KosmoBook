@@ -2,10 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ 'KOSMOS-28-As-a-vendor-I-am-able-to-view-my-and-manage-my-appointments-confirm-cancel-complete' ]
+    branches: [ main, master, "**" ]
   pull_request:
-    branches: [ 'KOSMOS-28-As-a-vendor-I-am-able-to-view-my-and-manage-my-appointments-confirm-cancel-complete' ]
-
+    branches: [ main, master, Working-Branch ]
 jobs:
   test:
     runs-on: ubuntu-latest
