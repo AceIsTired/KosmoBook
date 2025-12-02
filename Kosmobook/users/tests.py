@@ -48,7 +48,7 @@ class ProfileViewTests(TestCase):
             'licensed': True
         })
         self.assertTrue(tech_form.is_valid())
-        self.assertEqual(tech_form.cleaned_data['specialty'], 'makeup')
+        self.assertEqual(tech_form.cleaned_data['specialty'], 'makeup_artist')
         self.assertTrue(tech_form.cleaned_data['licensed'])
 
 
@@ -115,5 +115,6 @@ class ProfileViewTests(TestCase):
 #         self.assertIsNotNone(self.user.profile_picture)
 
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
+
 
 
