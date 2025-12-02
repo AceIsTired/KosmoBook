@@ -19,7 +19,7 @@ def book_appointment(request, professional_id):
     professional = get_object_or_404(User, id=professional_id)
     if request.method == "POST":
         form = AppointmentForm(request.POST)
-        # ⚠️ Set these BEFORE is_valid(), so model.clean() has them:
+        # Set these BEFORE is_valid(), so model.clean() has them:
         form.instance.professional = professional
         form.instance.client = request.user
 
@@ -155,9 +155,9 @@ def edit_appointment(request, appointment_id):
     if request.method == "POST":
         form = AppointmentForm(request.POST, instance=appt)
         
-        # Make sure instance retains client/professional
-        appt.client = appt.client
-        appt.professional = appt.professional
+        # these were causing testing errors
+        # appt.client = appt.client
+        # appt.professional = appt.professional
 
         if form.is_valid():
             updated = form.save(commit=False)
