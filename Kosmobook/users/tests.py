@@ -14,14 +14,14 @@ class ProfileViewTests(TestCase):
             password="Tulane2027",
             email="sphillips3@tulane.edu"
         )
-
+        
         self.user.is_initialized = True
         self.user.save()
 
     # check that the profile page works for users with a profile
     def test_profile_page_loads_successfully(self):
         self.client.login(username="sphillips", password="Tulane2027")
-        
+
         url = reverse("users:profile", kwargs={"username": self.user.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -48,12 +48,12 @@ class ProfileViewTests(TestCase):
         self.assertEqual(profile_form.cleaned_data['location'], 'Los Angeles, CA')
 
         tech_form = TechnicianDetailsForm(data={
-            'specialty': 'makeup_artist',
+            'specialty': 'other',
             'years_of_experience': 3,
             'licensed': True
         })
         self.assertTrue(tech_form.is_valid())
-        self.assertEqual(tech_form.cleaned_data['specialty'], 'makeup_artist')
+        self.assertEqual(tech_form.cleaned_data['specialty'], 'makeup')
         self.assertTrue(tech_form.cleaned_data['licensed'])
 
 
@@ -118,12 +118,4 @@ class ProfileViewTests(TestCase):
 #         self.user.refresh_from_db()
 
 #         self.assertIsNotNone(self.user.profile_picture)
-
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
-
-
-
-
-
-
-

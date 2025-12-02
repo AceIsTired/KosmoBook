@@ -11,6 +11,7 @@ PROFESSION_OPTIONS = [
     ('braider', 'Braider'),
     ('hairstylist', 'Hairstylist'),
     ('massage_artist', 'Massage Artist'),
+    ('other', 'Other'),
 ]
 
 
