@@ -7,12 +7,14 @@ class UserRegistration(UserCreationForm):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'date_of_birth', 'password1', 'password2')
+        fields = ('first_name', 'last_name', 'username', 'email', 'date_of_birth', 'password1', 'password2')
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.date_of_birth = self.cleaned_data['date_of_birth']
+
+        user.is_initialized = False
         if commit:
             user.save()
         return user
