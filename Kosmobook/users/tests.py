@@ -1,4 +1,4 @@
-from django.test import TestCase
+sfrom django.test import TestCase
 from django.contrib.auth import get_user_model
 from users.setup_forms import UserTypeForm, ProfileInfoForm, TechnicianDetailsForm
 from django.urls import reverse
@@ -17,14 +17,14 @@ class ProfileViewTests(TestCase):
 
     # check that the profile page works for users with a profile
     def test_profile_page_loads_successfully(self):
-        url = reverse("profile", kwargs={"username": self.user.username})
+        url = reverse("users:profile", kwargs={"username": self.user.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "sphillips")
 
     # error page if there's no user account 
     def test_profile_404_if_user_not_found(self):
-        url = reverse("profile", kwargs={"username": "unknownuser"})
+        url = reverse("users:profile", kwargs={"username": "unknownuser"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -115,3 +115,4 @@ class ProfileViewTests(TestCase):
 #         self.assertIsNotNone(self.user.profile_picture)
 
 #         self.assertIn("test.jpg", self.user.profile_picture.name)
+
