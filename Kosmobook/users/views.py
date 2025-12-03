@@ -49,7 +49,7 @@ def edit_profile(request):
         form = EditProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('profile', username=user.username)
+            return redirect('users:profile', username=user.username)
     else:
         form = EditProfileForm(instance=user)
 

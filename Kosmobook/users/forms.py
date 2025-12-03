@@ -22,17 +22,16 @@ class UserRegistration(UserCreationForm):
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = [
-            'username',
-            'email',
-            'bio',
-            'profile_picture',
-            'date_of_birth',
-            'location',
-            'specialty',
-            'years_of_experience',
-            'licensed',
-        ]
+        fields = ['username', 'bio', 'location', 'profile_picture']
+
         widgets = {
-            'bio': forms.Textarea(attrs={'rows': 3}),
-        }
+            'username': forms.TextInput(attrs={
+                'class': 'w-full border border-gray-300 rounded-lg p-2'
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'w-full border border-gray-300 rounded-lg p-2 h-24'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'w-full border border-gray-300 rounded-lg p-2'
+            }),
+        } 
