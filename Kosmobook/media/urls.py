@@ -18,6 +18,9 @@ urlpatterns = [
     path('post/<int:pk>/comment/', views.add_comment, name='add_comment'),
     path('comment/<int:pk>/delete/', views.delete_comment, name='delete_comment'),
 
+    path('bookmark/<int:post_id>/', views.bookmark_post, name='bookmark_post'),
+    path('bookmark/<int:bookmark_id>/remove/', views.remove_bookmark, name='remove_bookmark'),
+
     # Feed URLs
     path('feed/', views.feed, name='feed'),
     path('explore/', views.explore, name='explore'),

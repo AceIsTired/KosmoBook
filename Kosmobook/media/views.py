@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.db.models import Count, Q
-from .models import Post, Media, Like, Comment
+from .models import Post, Media, Like, Comment, Bookmark
 from .forms import PostCreateForm, CommentForm
 from users.models import CustomUser
 
@@ -60,8 +60,10 @@ def post_detail(request, pk):
     
     # Check if current user liked this post
     is_liked = False
+    is_bookmarked = False
     if request.user.is_authenticated:
         is_liked = Like.objects.filter(user=request.user, post=post).exists()
+        is_bookmarked = post.is_bookmarked_by(request.user)
     
     comment_form = CommentForm()
     
@@ -69,7 +71,8 @@ def post_detail(request, pk):
         'post': post,
         'comments': comments,
         'comment_form': comment_form,
-        'is_liked': is_liked
+        'is_liked': is_liked,
+        'is_bookmarked': is_bookmarked
     })
 
 @login_required
@@ -167,12 +170,57 @@ def delete_comment(request, pk):
     return redirect('media:post_detail', pk=post_pk)
 
 @login_required
+@require_POST
+def bookmark_post(request, post_id):
+    """Bookmark OR unbookmark a post (toggle)"""
+    post = get_object_or_404(Post, pk=post_id)
+    
+    # Check if already bookmarked
+    bookmark_exists = Bookmark.objects.filter(user=request.user, post=post).exists()
+    
+    if bookmark_exists:
+        # Remove bookmark (unbookmark)
+        Bookmark.objects.filter(user=request.user, post=post).delete()
+        messages.success(request, 'Post removed from your KosmoBoard')
+    else:
+        # Create bookmark
+        Bookmark.objects.create(user=request.user, post=post)
+        messages.success(request, 'Post saved to your KosmoBoard!')
+    
+    # Check where the request came from and redirect appropriately
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    
+    # Default redirect to post detail
+    return redirect('media:post_detail', pk=post_id)
+
+@login_required
+@require_POST
+def remove_bookmark(request, bookmark_id):
+    """Remove a bookmark"""
+    bookmark = get_object_or_404(Bookmark, pk=bookmark_id, user=request.user)
+    bookmark.delete()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'message': 'Post removed from KosmoBoard'
+        })
+    
+    return redirect('users:profile', username=request.user.username)
+
+
+@login_required
 def feed(request):
     # Get posts from users that the current user follows
     following_users = request.user.get_followed_users()
     posts = Post.objects.filter(
         Q(user__in=following_users) | Q(user=request.user)
     ).order_by('-created_at')
+
+    for post in posts:
+        post.is_bookmarked = post.is_bookmarked_by(request.user)
     
     return render(request, 'media/feed.html', {
         'posts': posts
@@ -184,6 +232,14 @@ def explore(request):
         like_count_val=Count('like')
     ).order_by('-like_count_val', '-created_at')[:50]
     
+    if request.user.is_authenticated:
+        # Use the is_bookmarked_by method for each post
+        for post in posts:
+            post.is_bookmarked = post.is_bookmarked_by(request.user)
+    else:
+        for post in posts:
+            post.is_bookmarked = False
+
     return render(request, 'media/explore.html', {
         'posts': posts
     })

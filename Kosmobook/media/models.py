@@ -17,6 +17,11 @@ class Post(models.Model):
     @property
     def comment_count(self):
         return self.comments.count()
+    
+    def is_bookmarked_by(self, user):
+        if not user.is_authenticated:
+            return False
+        return self.bookmarked_by.filter(id=user.id).exists()
 
     def __str__(self):
         return f"Post by {self.user.username} - {self.created_at.strftime('%Y-%m-%d')}"
@@ -77,3 +82,17 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username} on post {self.post.id}"
+    
+# Add to your models.py file (in the media app)
+class Bookmark(models.Model):
+    """Model for saving posts to personal KosmoBoard"""
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='bookmarks')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='bookmarked_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'post']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} bookmarked post {self.post.id}"
