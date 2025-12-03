@@ -4,17 +4,12 @@ from .models import Appointment
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['scheduled_time', 'duration_minutes', 'location', 'status']
+        fields = ["scheduled_time", "duration_minutes"]
         widgets = {
-            'scheduled_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'duration_minutes': forms.NumberInput(attrs={'min': 15, 'max': 240, 'step': 15}),
-            'location': forms.TextInput(attrs={'placeholder': 'Enter appointment location'}),
-            'status': forms.HiddenInput(),  # Status is set automatically
-        }
-        labels = {
-            'scheduled_time': 'Date & Time',
-            'duration_minutes': 'Duration (minutes)',
-            'location': 'Location',
+            "scheduled_time": forms.DateTimeInput(
+                attrs={"type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M"
+            ),
         }
 
     def __init__(self, *args, **kwargs):

@@ -190,14 +190,14 @@ def complete_appointment(request, appointment_id):
 
 @login_required
 def edit_appointment(request, appointment_id):
+    from django.shortcuts import get_object_or_404
     appt = get_object_or_404(Appointment, id=appointment_id)
 
-    # Permissions:
-    # - Professional can edit if not cancelled/completed
-    # - Client can edit only if appointment hasn't started yet
+
     from django.utils import timezone
     now = timezone.now()
 
+    # ---- PERMISSIONS ---------------------------------------------------------
     if request.user == appt.client:
         if appt.scheduled_time <= now:
             messages.error(request, "You cannot edit an appointment that has already started.")
@@ -210,14 +210,22 @@ def edit_appointment(request, appointment_id):
 
     else:
         return HttpResponseForbidden("You cannot edit this appointment.")
+    # --------------------------------------------------------------------------
 
-    # Handle incoming POST changes
+
+    # ---- POST: update appointment fields ------------------------------------
     if request.method == "POST":
         form = AppointmentForm(request.POST, instance=appt)
 
         if form.is_valid():
             updated = form.save(commit=False)
-            updated.full_clean()  # run overlap/business rules
+
+            # Preserve required non-form fields
+            updated.client = appt.client
+            updated.professional = appt.professional
+            updated.status = appt.status  # <-- REQUIRED FIX
+
+            updated.full_clean()
             updated.save()
 
             messages.success(request, "Appointment updated successfully!")
@@ -226,10 +234,17 @@ def edit_appointment(request, appointment_id):
                 return redirect("appointments:professional_appointments")
             else:
                 return redirect("appointments:my_appointments")
+        else:
+            print("FORM ERRORS:", form.errors)
 
 
-    # GET request: show form pre-filled
+
+
+    # ---- GET: load form ------------------------------------------------------
     else:
         form = AppointmentForm(instance=appt)
 
-    return render(request, "appointments/edit_appointment.html", {"form": form, "appointment": appt})
+    return render(request, "appointments/edit_appointment.html", {
+        "form": form,
+        "appointment": appt
+    })

@@ -6,6 +6,7 @@ from appointments.models import Appointment
 
 User = get_user_model()
 
+
 class AppointmentActionsTest(TestCase):
 
     def setUp(self):
@@ -30,28 +31,29 @@ class AppointmentActionsTest(TestCase):
             status="pending"
         )
 
-
-
     def test_professional_can_confirm(self):
         self.client.login(username="pro", password="pass")
-        url = reverse("confirm_appointment", args=[self.appt.id])
 
+        url = reverse("appointments:confirm_appointment", args=[self.appt.id])
         response = self.client.get(url, follow=True)
+
         self.appt.refresh_from_db()
 
         self.assertEqual(self.appt.status, "confirmed")
         self.assertEqual(response.status_code, 200)
 
     def test_client_cannot_cancel_after_start(self):
+        # Make appointment in the past
         self.appt.scheduled_time = timezone.now() - timezone.timedelta(hours=1)
         self.appt.save()
 
         self.client.login(username="client", password="pass")
-        url = reverse("cancel_appointment", args=[self.appt.id])
+        url = reverse("appointments:cancel_appointment", args=[self.appt.id])
 
         response = self.client.get(url, follow=True)
         self.appt.refresh_from_db()
 
+        # Should NOT allow cancellation
         self.assertNotEqual(self.appt.status, "cancelled")
         self.assertEqual(response.status_code, 200)
 
@@ -62,7 +64,7 @@ class AppointmentActionsTest(TestCase):
             hour=10, minute=0, second=0, microsecond=0
         )
 
-        url = reverse("edit_appointment", args=[self.appt.id])
+        url = reverse("appointments:edit_appointment", args=[self.appt.id])
 
         response = self.client.post(url, {
             "scheduled_time": new_time.strftime("%Y-%m-%dT%H:%M"),
