@@ -4,6 +4,13 @@
 {% block title %}Book Appointment - Kosmobook{% endblock %}
 
 {% block content %}
+<div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+    <p class="text-sm text-blue-700">
+        <strong>Note:</strong> All times are shown in your local timezone.<br>
+        <strong>Current time:</strong> {{ now_local }}<br>
+        <strong>Minimum booking time:</strong> {{ min_datetime }}
+    </p>
+</div>
 <div class="max-w-2xl mx-auto py-8 px-4">
     <!-- Back Button -->
     <div class="mb-6">
@@ -188,4 +195,5 @@ input:disabled, select:disabled {
     cursor: not-allowed;
 }
 </style>
+
 {% endblock %}
