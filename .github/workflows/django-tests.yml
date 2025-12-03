@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, master, "**" ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, Working-Branch ]
 
 jobs:
   test:
@@ -30,10 +30,10 @@ jobs:
 
       # manage.py is in kosmos_core/
       - name: Run migrations + tests
-        working-directory: kosmos_core
+        working-directory: Kosmobook
         env:
-          DJANGO_SETTINGS_MODULE: kosmos_core.settings
+          DJANGO_SETTINGS_MODULE: Kosmobook.settings
         run: |
           python manage.py migrate --noinput
           # Force test discovery by module path (rock-solid):
-          python manage.py test apps.appointments.tests.test_booking -v 2
+          python manage.py test users.tests -v 2

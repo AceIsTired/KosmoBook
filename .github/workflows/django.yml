@@ -1,11 +1,10 @@
-name: Django CI (main)
+name: Django CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master, "**" ]
   pull_request:
-    branches: [ main ]
-
+    branches: [ main, master, Working-Branch ]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,9 +29,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run migrations + tests
-        working-directory: kosmos_core              # <-- manage.py lives here
+        working-directory: Kosmobook              # <-- manage.py lives here
         env:
-          DJANGO_SETTINGS_MODULE: kosmos_core.settings
+          DJANGO_SETTINGS_MODULE: Kosmobook.settings
         run: |
           python manage.py migrate --noinput
           python manage.py test -v 2
