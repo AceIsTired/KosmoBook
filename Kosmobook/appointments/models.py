@@ -60,10 +60,18 @@ class Appointment(models.Model):
     def _validate_future_start(self):
         """Ensure the appointment start time is in the future."""
         if self.scheduled_time is None:
-            # Let field-level validation handle required-ness
             return
-        if self.scheduled_time <= timezone.now():
-            raise ValidationError("Start time must be in the future.")
+        
+        now = timezone.now()
+        # Allow appointments at least 1 hour in the future (minimum notice)
+        one_hour_from_now = now + timedelta(hours=1)
+        
+        if self.scheduled_time < one_hour_from_now:
+            raise ValidationError(
+                f"Start time must be at least 1 hour in the future. "
+                f"Current time: {now.strftime('%Y-%m-%d %H:%M')}, "
+                f"Selected time: {self.scheduled_time.strftime('%Y-%m-%d %H:%M')}"
+            )
 
     def _validate_duration(self):
         """Ensure the duration is positive (and optionally constrained)."""
@@ -82,45 +90,55 @@ class Appointment(models.Model):
 
         start = self.scheduled_time
         end = self.end_time
-
+        
+        # Check if start time is on a weekday (Mon-Fri)
+        if start.weekday() >= 5:  # 5=Saturday, 6=Sunday
+            raise ValidationError(
+                "Appointments are only available Monday to Friday."
+            )
+        
         # Start within [9:00, 17:00)
         if not (BUSINESS_START_HOUR <= start.hour < BUSINESS_END_HOUR):
             raise ValidationError(
-                "Start time must be within business hours (09:00–17:00)."
+                f"Start time {start.strftime('%H:%M')} is outside business hours "
+                f"({BUSINESS_START_HOUR}:00 - {BUSINESS_END_HOUR}:00)."
             )
-
+        
         # End within (9:00, 17:00], allow exactly 17:00 end
         if end.hour > BUSINESS_END_HOUR or (
             end.hour == BUSINESS_END_HOUR and end.minute > 0
         ):
             raise ValidationError(
-                "End time must be within business hours (09:00–17:00)."
+                f"End time {end.strftime('%H:%M')} is outside business hours "
+                f"({BUSINESS_START_HOUR}:00 - {BUSINESS_END_HOUR}:00). "
+                f"Duration might be too long."
             )
 
     def _validate_no_overlap(self):
         """
-        Ensure there is no overlapping appointment for the same professional.
-        """
+    Ensure there is no overlapping appointment for the same professional.
+    """
         if self.scheduled_time is None or self.duration_minutes is None:
             return
         if self.professional_id is None:
-            # professional is required for overlap checking
             return
 
         start = self.scheduled_time
         end = self.end_time
 
-        overlapping_qs = (
-            Appointment.objects
-            .filter(professional=self.professional)
-            .exclude(id=self.id)
-            .filter(scheduled_time__lt=end)
-        )
+        # Find appointments that overlap with our time slot
+        overlapping = Appointment.objects.filter(
+            professional=self.professional
+        ).exclude(
+            id=self.id  # Exclude self if updating
+        ).exclude(
+            status='cancelled'  # Exclude cancelled appointments
+        ).filter(
+            scheduled_time__lt=end,
+            end_time__gt=start  # Using property
+        ).exists()
 
-        # second-pass filter in Python for accurate end-time comparison
-        for appt in overlapping_qs:
-            other_end = appt.scheduled_time + timedelta(minutes=appt.duration_minutes)
-            if other_end > start:
-                raise ValidationError(
-                    "This slot overlaps with an existing booking for this cosmetologist."
-                )
+        if overlapping:
+            raise ValidationError(
+                "This time slot overlaps with an existing booking for this cosmetologist."
+            )

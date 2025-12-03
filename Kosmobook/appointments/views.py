@@ -18,30 +18,56 @@ def book_appointment(request, professional_id):
     
     if request.method == "POST":
         form = AppointmentForm(request.POST)
-        # Set these BEFORE is_valid(), so model.clean() has them:
-        form.instance.professional = professional
-        form.instance.client = request.user
-        form.instance.status = 'pending'  # Set initial status
-
-        try:
-            if form.is_valid():
-                appt = form.save(commit=False)  # already has professional/client
-                appt.full_clean()               # This will trigger model validation
+        
+        if form.is_valid():
+            # Create appointment instance but don't save yet
+            appt = form.save(commit=False)
+            appt.professional = professional
+            appt.client = request.user
+            appt.status = 'pending'
+            
+            try:
+                # Run model validation
+                appt.full_clean()
+                # If validation passes, save
                 appt.save()
                 messages.success(request, "Appointment booked successfully!")
                 return redirect("appointments:booking_success")
-        except ValidationError as e:
-            # Add validation errors to form
-            for field, errors in e.error_dict.items():
-                for error in errors:
-                    form.add_error(field if field != '__all__' else None, error)
+                
+            except ValidationError as e:
+                # Add validation errors to the form for display
+                # The error_dict contains field-specific errors
+                if hasattr(e, 'error_dict'):
+                    for field, errors in e.error_dict.items():
+                        for error in errors:
+                            if field == '__all__':
+                                # Non-field errors
+                                form.add_error(None, error.message)
+                            else:
+                                # Field-specific errors
+                                form.add_error(field, error.message)
+                else:
+                    # Non-field errors
+                    for error in e.messages:
+                        form.add_error(None, error)
+                        
+                # Re-render form with errors
+                return render(request, "appointments/book.html", {
+                    "form": form,
+                    "professional": professional,
+                    "business_hours": "9:00 AM - 5:00 PM",
+                })
+        else:
+            # Form validation errors (field-level)
+            messages.error(request, "Please correct the errors below.")
+    
     else:
         form = AppointmentForm()
     
     return render(request, "appointments/book.html", {
-        "form": form, 
+        "form": form,
         "professional": professional,
-        "business_hours": "9:00 AM - 5:00 PM",  # Pass to template
+        "business_hours": "9:00 AM - 5:00 PM",
     })
 
 def booking_success(request):
