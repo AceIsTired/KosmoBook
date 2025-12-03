@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.db.models import Q
 from .forms import EditProfileForm
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 
@@ -49,11 +50,11 @@ def edit_profile(request):
         form = EditProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('profile', username=user.username)
+            return redirect('users:profile', username=user.username)
     else:
         form = EditProfileForm(instance=user)
 
-    return render(request, 'users/edit_profile.html', {
+    return render(request, 'users/editProfile.html', {
         'form': form
     })
 
@@ -123,3 +124,37 @@ def connections(request, username, connection_type):
         'title': title
     })
 
+@login_required
+def search_profiles(request):
+    """Search for user profiles"""
+    query = request.GET.get('q', '').strip()
+    
+    if query:
+        # Search by username, bio, specialty, or location
+        results = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(bio__icontains=query) |
+            Q(specialty__icontains=query) |
+            Q(location__icontains=query)
+        ).exclude(id=request.user.id)  # Exclude current user
+        
+        # Split results into technicians and regular users
+        technicians = results.filter(is_technician=True)
+        regular_users = results.filter(is_technician=False)
+        
+        total_results = results.count()
+    else:
+        # Return empty QuerySets when there's no query
+        results = User.objects.none()  # Empty QuerySet, not a list!
+        technicians = User.objects.none()
+        regular_users = User.objects.none()
+        total_results = 0
+    
+    context = {
+        'query': query,
+        'technicians': technicians,
+        'regular_users': regular_users,
+        'total_results': total_results,
+    }
+    
+    return render(request, 'users/searchProfiles.html', context)

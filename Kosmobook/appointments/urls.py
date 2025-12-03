@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from users.views import search_profiles
 
 app_name = 'appointments'
 
@@ -22,6 +23,8 @@ urlpatterns = [
     path("appointment/<int:appointment_id>/complete/", views.complete_appointment, name="complete_appointment"),
 
     path("appointment/<int:appointment_id>/edit/",views.edit_appointment,name="edit_appointment"),
+
+    path('search/', search_profiles, name='search_profiles'),
 
 
 

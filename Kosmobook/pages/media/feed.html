@@ -103,7 +103,7 @@
                         </div>
                     {% endif %}
                     
-                    <!-- Stats -->
+                     <!-- Stats -->
                     <div class="flex items-center justify-between text-gray-500 text-sm mb-3">
                         <div class="flex items-center space-x-4">
                             <span>❤️ {{ post.like_count }} likes</span>
@@ -113,6 +113,42 @@
                             View post →
                         </a>
                     </div>
+                    
+                    <!-- Bookmark Button (ADD THIS SECTION) -->
+                    {% if user.is_authenticated %}
+                    <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                        <div class="flex items-center space-x-4">
+                            <!-- Like button -->
+                            <form method="post" action="{% url 'media:like_post' pk=post.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="flex items-center gap-1 text-gray-500 hover:text-red-500">
+                                    <span>🤍</span>
+                                    <span>Like</span>
+                                </button>
+                            </form>
+                            
+                            <!-- Comment button -->
+                            <a href="{% url 'media:post_detail' pk=post.pk %}" class="flex items-center gap-1 text-gray-500 hover:text-blue-500">
+                                <span>💬</span>
+                                <span>Comment</span>
+                            </a>
+                            
+                            <!-- Bookmark button -->
+                            <form method="post" action="{% url 'media:bookmark_post' post.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="flex items-center gap-1 text-gray-500 hover:text-yellow-500">
+                                    {% if post.is_bookmarked %}
+                                        <span>⭐</span>
+                                        <span>Saved</span>
+                                    {% else %}
+                                        <span>☆</span>
+                                        <span>Save</span>
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

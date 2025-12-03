@@ -127,6 +127,23 @@
                         <div class="text-xs text-gray-400 mt-2">
                             {{ post.created_at|timesince }} ago
                         </div>
+                        {% if user.is_authenticated %}
+                            <div class="mt-3 pt-3 border-t border-gray-100">
+                                <form method="post" action="{% url 'media:bookmark_post' post.pk %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm {% if post.is_bookmarked %}bg-yellow-50 text-yellow-700 border border-yellow-200{% else %}bg-gray-50 text-gray-700 border border-gray-200{% endif %} rounded-lg hover:opacity-90 transition-opacity">
+                                        {% if post.is_bookmarked %}
+                                            <span>⭐</span>
+                                            <span>Remove from KosmoBoard</span>
+                                        {% else %}
+                                            <span>☆</span>
+                                            <span>Save to KosmoBoard</span>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
                     </div>
                 </div>
             {% endfor %}

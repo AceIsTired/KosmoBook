@@ -2,9 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 from users.forms import UserRegistration
 from users.setup_forms import UserTypeForm, ProfileInfoForm, TechnicianDetailsForm
+from appointments.models import Appointment
+from media.models import Post, Bookmark
+
 
 
 def landing(request):
@@ -60,7 +64,43 @@ def home(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    return render(request, 'users/home.html')
+    # Get recent posts from feed (following users + user's own posts)
+    following_users = request.user.get_followed_users()
+    recent_posts = Post.objects.filter(
+        user__in=following_users
+    ).select_related('user').prefetch_related('media_files').order_by('-created_at')[:5]
+    
+    # Get upcoming appointments
+    now = timezone.now()
+    if request.user.is_technician:
+        upcoming_appointments = Appointment.objects.filter(
+            professional=request.user,
+            scheduled_time__gte=now,
+            status__in=['pending', 'confirmed']
+        ).order_by('scheduled_time')[:5]
+    else:
+        upcoming_appointments = Appointment.objects.filter(
+            client=request.user,
+            scheduled_time__gte=now,
+            status__in=['pending', 'confirmed']
+        ).order_by('scheduled_time')[:5]
+    
+    # Get saved posts for KosmoBoard
+    saved_posts = Bookmark.objects.filter(
+        user=request.user
+    ).select_related('post').prefetch_related('post__media_files')[:12]
+    
+    # Count saved posts
+    saved_posts_count = Bookmark.objects.filter(user=request.user).count()
+    
+    context = {
+        'recent_posts': recent_posts,
+        'upcoming_appointments': upcoming_appointments,
+        'saved_posts': saved_posts,
+        'saved_posts_count': saved_posts_count,
+    }
+    
+    return render(request, 'users/home.html', context)
 
 
 # below are the initialization questions functions
