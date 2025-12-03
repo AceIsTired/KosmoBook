@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kosmobook - Beauty Social Network{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8b5cf6;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7c3aed;
+        }
+        
+        /* Line clamp for text truncation */
+        .line-clamp-1 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+        }
+        .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+        .line-clamp-3 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+        
+        /* Smooth transitions */
+        .transition-all {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        /* Form styling */
+        input, textarea, select {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        /* Button base styles */
+        .btn-primary {
+            background-color: #8b5cf6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #7c3aed;
+        }
+        
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+        
+        /* Card styling */
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        /* Hide radio buttons for custom styling */
+        input[type="radio"] {
+            display: none;
+        }
+        
+        input[type="radio"]:checked + div {
+            border-color: #8b5cf6;
+            background-color: #f5f3ff;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Main Navigation Header -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="shrink-0">
+                    <a href="{% url 'home' %}" class="flex items-center">
+                        <h1 class="text-xl font-bold text-purple-900">✨ Kosmobook</h1>
+                    </a>
+                </div>
+
+                <!-- Navigation Links (Center) -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="{% url 'home' %}" 
+                       class="{% if request.resolver_match.url_name == 'home' %}text-purple-600 border-b-2 border-purple-600{% else %}text-gray-500 hover:text-purple-600{% endif %} 
+                              px-3 py-2 text-sm font-medium transition-colors">
+                        🏠 Home
+                    </a>
+                    <a href="{% url 'media:feed' %}" 
+                       class="{% if request.resolver_match.url_name == 'feed' %}text-purple-600 border-b-2 border-purple-600{% else %}text-gray-500 hover:text-purple-600{% endif %} 
+                              px-3 py-2 text-sm font-medium transition-colors">
+                        📰 Feed
+                    </a>
+                    <a href="{% url 'media:explore' %}" 
+                       class="{% if request.resolver_match.url_name == 'explore' %}text-purple-600 border-b-2 border-purple-600{% else %}text-gray-500 hover:text-purple-600{% endif %} 
+                              px-3 py-2 text-sm font-medium transition-colors">
+                        🔍 Explore
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'appointments:dashboard' %}" 
+                           class="{% if 'appointments' in request.path %}text-purple-600 border-b-2 border-purple-600{% else %}text-gray-500 hover:text-purple-600{% endif %} 
+                                  px-3 py-2 text-sm font-medium transition-colors">
+                            📅 Appointments
+                        </a>
+                    {% endif %}
+                </nav>
+
+                <!-- Right Side Actions -->
+                <div class="flex items-center space-x-4">
+                    {% if request.user.is_authenticated %}
+                        <!-- Create Post Button -->
+                        <a href="{% url 'media:create_post' %}" 
+                           class="hidden md:inline-flex items-center bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                            ➕ Create
+                        </a>
+                        
+                        <!-- Search Bar -->
+                        <div class="hidden md:block flex-1 max-w-md">
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    placeholder="Search beauty professionals..." 
+                                    class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                >
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    🔍
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile Dropdown -->
+                        <div class="relative">
+                            <a href="{% url 'users:profile' username=request.user.username %}" 
+                               class="flex items-center space-x-2 text-gray-700 hover:text-purple-600">
+                                {% if request.user.profile_picture %}
+                                    <img src="{{ request.user.profile_picture.url }}" 
+                                         alt="{{ request.user.username }}" 
+                                         class="w-8 h-8 rounded-full object-cover border border-gray-200">
+                                {% else %}
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
+                                        <span class="text-white text-sm">👤</span>
+                                    </div>
+                                {% endif %}
+                                <span class="hidden md:inline text-sm font-medium">{{ request.user.username|truncatechars:10 }}</span>
+                            </a>
+                        </div>
+                        
+                        <!-- Logout -->
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                                Logout
+                            </button>
+                        </form>
+                    {% else %}
+                        <!-- Login/Register for anonymous users -->
+                        <div class="space-x-2">
+                            <a href="{% url 'login' %}" 
+                               class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                                Login
+                            </a>
+                            <a href="{% url 'register' %}" 
+                               class="border border-purple-600 text-purple-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors">
+                                Register
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="md:hidden border-t pt-4 pb-2">
+                <div class="flex justify-around">
+                    <a href="{% url 'home' %}" class="flex flex-col items-center text-gray-600 hover:text-purple-600">
+                        <span class="text-xl">🏠</span>
+                        <span class="text-xs mt-1">Home</span>
+                    </a>
+                    <a href="{% url 'media:feed' %}" class="flex flex-col items-center text-gray-600 hover:text-purple-600">
+                        <span class="text-xl">📰</span>
+                        <span class="text-xs mt-1">Feed</span>
+                    </a>
+                    <a href="{% url 'media:explore' %}" class="flex flex-col items-center text-gray-600 hover:text-purple-600">
+                        <span class="text-xl">🔍</span>
+                        <span class="text-xs mt-1">Explore</span>
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'media:create_post' %}" class="flex flex-col items-center text-gray-600 hover:text-purple-600">
+                            <span class="text-xl">➕</span>
+                            <span class="text-xs mt-1">Create</span>
+                        </a>
+                        <a href="{% url 'users:profile' username=request.user.username %}" class="flex flex-col items-center text-gray-600 hover:text-purple-600">
+                            <span class="text-xl">👤</span>
+                            <span class="text-xs mt-1">Profile</span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Messages/Alerts -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="rounded-md p-4 mb-2 {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}
+        <!-- Page-specific content goes here -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-xl font-bold text-purple-900">✨ Kosmobook</h2>
+                    <p class="text-gray-600 text-sm mt-2">Connecting beauty enthusiasts with cosmetic professionals</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
