@@ -108,17 +108,19 @@
                     <!-- Special styling for datetime field -->
                     {% if field.name == 'scheduled_time' %}
                         <div class="relative">
-                            {{ field }}
+                            <input type="datetime-local" 
+                                   name="{{ field.name }}"
+                                   id="{{ field.id_for_label }}"
+                                   {% if field.value %}value="{{ field.value|date:'Y-m-d\TH:i' }}"{% endif %}
+                                   min="{{ min_datetime }}"
+                                   class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   required>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <span class="text-gray-500">📅</span>
                             </div>
                         </div>
                     {% else %}
                         {{ field }}
-                    {% endif %}
-                    
-                    {% if field.help_text %}
-                        <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
                     {% endif %}
                     
                     {% if field.errors %}
@@ -197,3 +199,4 @@ input:disabled, select:disabled {
 </style>
 
 {% endblock %}
+
