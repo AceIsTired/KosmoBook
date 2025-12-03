@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile - Kosmobook{% endblock %}
+
+{% block content %}
+<main class="max-w-3xl mx-auto">
+
+    <!-- Edit Profile Card -->
+    <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">✏️ Edit Profile</h2>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                {{ form.username }}
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                {{ form.bio }}
+            </div>
+
+            <!-- Location -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                {{ form.location }}
+            </div>
+
+            <!-- Profile Picture -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+                {{ form.profile_picture }}
+                {% if form.instance.profile_picture %}
+                    <div class="mt-2">
+                        <p class="text-gray-500 text-sm mb-1">Current Picture:</p>
+                        <img src="{{ form.instance.profile_picture.url }}" 
+                             alt="Current Profile Picture" 
+                             class="w-40 h-40 rounded-full object-cover border">
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Submit & Cancel -->
+            <div class="flex items-center gap-3 mt-6">
+                <button type="submit" 
+                        class="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
+                    💾 Save Changes
+                </button>
+
+                <a href="{% url 'users:profile' username=request.user.username %}"
+                   class="px-4 py-2 text-gray-600 hover:text-gray-900 transition">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+</main>
+{% endblock %}

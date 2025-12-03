@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Appointment - Kosmobook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-8 px-4">
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'appointments:dashboard' %}" 
+           class="inline-flex items-center text-purple-600 hover:text-purple-700 transition-colors">
+            ← Back to Appointments
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border p-8">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Edit Appointment</h1>
+            <p class="text-gray-600 mt-2">
+                Update the appointment details below
+            </p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-6 rounded-md p-4 {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800 border border-yellow-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                    <div class="flex items-center">
+                        <span class="mr-2">
+                            {% if message.tags == 'success' %}✅
+                            {% elif message.tags == 'error' %}❌
+                            {% elif message.tags == 'warning' %}⚠️
+                            {% else %}ℹ️{% endif %}
+                        </span>
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Display general form errors -->
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                    <div class="flex">
+                        <div class="flex-shrink-0">⚠️</div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700 font-medium">Please fix the following errors:</p>
+                            <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% for field in form %}
+                {% if field.name != 'status' %}  <!-- Hide status field for editing -->
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="text-red-500">*</span>
+                        {% endif %}
+                    </label>
+                    
+                    <!-- Special styling for datetime field -->
+                    {% if field.name == 'scheduled_time' %}
+                        <div class="relative">
+                            {{ field }}
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <span class="text-gray-500">📅</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    
+                    {% if field.help_text %}
+                        <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        <div class="mt-1 text-sm text-red-600 space-y-1">
+                            {% for error in field.errors %}
+                                <div class="flex items-start">
+                                    <span class="mr-1">❌</span>
+                                    <span>{{ error }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Business Hours Reminder -->
+            <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">ℹ️</div>
+                    <div class="ml-3">
+                        <p class="text-sm text-purple-700">
+                            <strong>Business Hours:</strong> 9:00 AM - 5:00 PM<br>
+                            <strong>Minimum Notice:</strong> 1 hour in advance required<br>
+                            <strong>Note:</strong> Your new time must not overlap with existing appointments
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-6 border-t border-gray-200">
+                <div class="flex justify-between">
+                    <a href="{% url 'appointments:dashboard' %}" 
+                       class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-sm">
+                        <span class="mr-2">💾</span>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+input, select, textarea {
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    font-family: inherit;
+    background-color: white;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+input[type="datetime-local"] {
+    font-family: inherit;
+    padding-right: 2.5rem;
+}
+
+input:disabled, select:disabled {
+    background-color: #f9fafb;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %}

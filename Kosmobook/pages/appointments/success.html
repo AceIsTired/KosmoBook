@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Booking Successful - Kosmobook{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-12 px-4 text-center">
+    <div class="bg-white rounded-xl shadow-sm border p-8">
+        <div class="text-6xl mb-4">✅</div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Appointment Booked Successfully!</h1>
+        <p class="text-gray-600 mb-8">
+            Your appointment has been scheduled. You'll receive a confirmation notification.
+        </p>
+        
+        <div class="space-y-4">
+            <a href="{% url 'appointments:dashboard' %}" 
+               class="block w-full bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-sm">
+                View My Appointments
+            </a>
+            <a href="{% url 'home' %}" 
+               class="block w-full border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
