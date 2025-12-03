@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Kosmobook{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="max-w-4xl mx-auto">
+    <!-- Back Button and Title -->
+    <div class="mb-6">
+        <a href="{% url 'users:profile' username=profile_user.username %}" 
+           class="inline-flex items-center text-purple-600 hover:text-purple-700 mb-4">
+            ← Back to {{ profile_user.username }}'s Profile
+        </a>
+        <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+        <p class="text-gray-600 mt-2">{{ connection_data|length }} {{ connection_type }}</p>
+    </div>
+
+    <!-- Connections List -->
+    <div class="bg-white rounded-xl shadow-sm border">
+        {% if connection_data %}
+            <div class="divide-y divide-gray-200">
+                {% for data in connection_data %}
+                    {% with user=data.user %}
+                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <!-- Profile Picture -->
+                            <div class="flex-shrink-0 mr-4">
+                                <a href="{% url 'users:profile' username=user.username %}">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}"
+                                             alt="{{ user.username }}"
+                                             class="w-12 h-12 rounded-full object-cover border border-gray-200">
+                                    {% else %}
+                                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
+                                            <span class="text-lg">👤</span>
+                                        </div>
+                                    {% endif %}
+                                </a>
+                            </div>
+                            
+                            <!-- User Info -->
+                            <div class="flex-1">
+                                <a href="{% url 'users:profile' username=user.username %}" class="block">
+                                    <h3 class="font-medium text-gray-900 hover:text-purple-600">{{ user.username }}</h3>
+                                    {% if user.bio %}
+                                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ user.bio }}</p>
+                                    {% endif %}
+                                    {% if user.location %}
+                                        <p class="text-xs text-gray-500 mt-1 flex items-center">
+                                            📍 {{ user.location }}
+                                        </p>
+                                    {% endif %}
+                                </a>
+                            </div>
+                            
+                            <!-- Follow Button (if not viewing own profile and logged in) -->
+                            {% if request.user.is_authenticated and request.user != user %}
+                                <div class="flex-shrink-0">
+                                    <form method="post" action="{% url 'users:follow_user' username=user.username %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button type="submit" 
+                                                class="{% if data.is_following %}bg-gray-100 text-gray-700 border border-gray-300{% else %}bg-purple-600 text-white{% endif %} 
+                                                       px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-purple-700 hover:text-white transition-colors">
+                                            {% if data.is_following %}
+                                                ❌ Following
+                                            {% else %}
+                                                ➕ Follow
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="p-12 text-center">
+                <div class="text-5xl mb-4">👥</div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                    No {{ connection_type }} yet
+                </h3>
+                <p class="text-gray-600">
+                    {% if connection_type == 'followers' %}
+                        When people follow {{ profile_user.username }}, they'll appear here.
+                    {% else %}
+                        When {{ profile_user.username }} follows people, they'll appear here.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
