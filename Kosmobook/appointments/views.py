@@ -20,54 +20,48 @@ def book_appointment(request, professional_id):
         form = AppointmentForm(request.POST)
         
         if form.is_valid():
-            # Create appointment instance but don't save yet
             appt = form.save(commit=False)
             appt.professional = professional
             appt.client = request.user
             appt.status = 'pending'
             
+            # Save first, then run full_clean for business logic
             try:
-                # Run model validation
-                appt.full_clean()
-                # If validation passes, save
                 appt.save()
                 messages.success(request, "Appointment booked successfully!")
                 return redirect("appointments:booking_success")
-                
             except ValidationError as e:
-                # Add validation errors to the form for display
-                # The error_dict contains field-specific errors
-                if hasattr(e, 'error_dict'):
-                    for field, errors in e.error_dict.items():
-                        for error in errors:
-                            if field == '__all__':
-                                # Non-field errors
-                                form.add_error(None, error.message)
-                            else:
-                                # Field-specific errors
-                                form.add_error(field, error.message)
-                else:
-                    # Non-field errors
-                    for error in e.messages:
-                        form.add_error(None, error)
-                        
-                # Re-render form with errors
-                return render(request, "appointments/book.html", {
-                    "form": form,
-                    "professional": professional,
-                    "business_hours": "9:00 AM - 5:00 PM",
-                })
+                # Delete the appointment if validation fails after save
+                if appt.pk:
+                    appt.delete()
+                
+                # Add validation errors to form
+                for field, errors in e.error_dict.items():
+                    for error in errors:
+                        if field == '__all__':
+                            form.add_error(None, error.message)
+                        else:
+                            form.add_error(field, error.message)
+                
+                messages.error(request, "Please fix the validation errors below.")
         else:
-            # Form validation errors (field-level)
-            messages.error(request, "Please correct the errors below.")
+            messages.error(request, "Please correct the form errors.")
     
     else:
         form = AppointmentForm()
+    
+    # Get current time in local timezone for display
+    from django.utils import timezone
+    now_local = timezone.localtime(timezone.now())
+    min_datetime = now_local.replace(minute=0, second=0, microsecond=0)
+    min_datetime = min_datetime.replace(hour=min_datetime.hour + 1)  # Add 1 hour
     
     return render(request, "appointments/book.html", {
         "form": form,
         "professional": professional,
         "business_hours": "9:00 AM - 5:00 PM",
+        "min_datetime": min_datetime.strftime('%Y-%m-%dT%H:%M'),
+        "now_local": now_local.strftime('%Y-%m-%d %H:%M'),
     })
 
 def booking_success(request):
@@ -257,5 +251,6 @@ def edit_appointment(request, appointment_id):
     # GET request: show form pre-filled
     else:
         form = AppointmentForm(instance=appt)
+
 
     return render(request, "appointments/edit_appointment.html", {"form": form, "appointment": appt})
