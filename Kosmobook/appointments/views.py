@@ -25,23 +25,25 @@ def book_appointment(request, professional_id):
             appt.client = request.user
             appt.status = 'pending'
             
-            # Save first, then run full_clean for business logic
             try:
+                # Run model validation
+                appt.full_clean()
                 appt.save()
                 messages.success(request, "Appointment booked successfully!")
                 return redirect("appointments:booking_success")
-            except ValidationError as e:
-                # Delete the appointment if validation fails after save
-                if appt.pk:
-                    appt.delete()
                 
+            except ValidationError as e:
                 # Add validation errors to form
-                for field, errors in e.error_dict.items():
-                    for error in errors:
-                        if field == '__all__':
-                            form.add_error(None, error.message)
-                        else:
-                            form.add_error(field, error.message)
+                if hasattr(e, 'error_dict'):
+                    for field, errors in e.error_dict.items():
+                        for error in errors:
+                            if field == '__all__':
+                                form.add_error(None, error)
+                            else:
+                                form.add_error(field, error)
+                else:
+                    for error in e.messages:
+                        form.add_error(None, error)
                 
                 messages.error(request, "Please fix the validation errors below.")
         else:
@@ -53,14 +55,11 @@ def book_appointment(request, professional_id):
     # Get current time in local timezone for display
     from django.utils import timezone
     now_local = timezone.localtime(timezone.now())
-    min_datetime = now_local.replace(minute=0, second=0, microsecond=0)
-    min_datetime = min_datetime.replace(hour=min_datetime.hour + 1)  # Add 1 hour
     
     return render(request, "appointments/book.html", {
         "form": form,
         "professional": professional,
         "business_hours": "9:00 AM - 5:00 PM",
-        "min_datetime": min_datetime.strftime('%Y-%m-%dT%H:%M'),
         "now_local": now_local.strftime('%Y-%m-%d %H:%M'),
     })
 
@@ -254,3 +253,4 @@ def edit_appointment(request, appointment_id):
 
 
     return render(request, "appointments/edit_appointment.html", {"form": form, "appointment": appt})
+
