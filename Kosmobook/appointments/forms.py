@@ -29,16 +29,11 @@ class AppointmentForm(forms.ModelForm):
         now = timezone.localtime(timezone.now())
         min_datetime = now.replace(minute=0, second=0, microsecond=0)
         # Add 1 hour for minimum notice
-        min_datetime = min_datetime.replace(hour=min_datetime.hour + 1)
+        min_datetime = min_datetime + timezone.timedelta(hours=1)
         
         # Format for HTML datetime-local input
         min_datetime_str = min_datetime.strftime('%Y-%m-%dT%H:%M')
         self.fields['scheduled_time'].widget.attrs['min'] = min_datetime_str
-        
-        # Also set max date (optional: e.g., 3 months in future)
-        max_datetime = min_datetime.replace(month=min_datetime.month + 3)
-        max_datetime_str = max_datetime.strftime('%Y-%m-%dT%H:%M')
-        self.fields['scheduled_time'].widget.attrs['max'] = max_datetime_str
 
     def clean_scheduled_time(self):
         """Convert local datetime to UTC for storage"""
@@ -47,16 +42,15 @@ class AppointmentForm(forms.ModelForm):
             # The datetime from form is naive (no timezone)
             # We need to make it aware and convert to UTC
             from django.utils import timezone
-            import pytz
             
             # First, assume it's in the local timezone
             local_tz = timezone.get_current_timezone()
             scheduled_time = scheduled_time.replace(tzinfo=local_tz)
             
             # Convert to UTC for storage
-            scheduled_time = scheduled_time.astimezone(pytz.UTC)
+            scheduled_time = scheduled_time.astimezone(timezone.utc)
             
-            # Also validate it's at least 1 hour from now
+            # Validate it's at least 1 hour from now
             now = timezone.now()
             one_hour_from_now = now + timezone.timedelta(hours=1)
             if scheduled_time < one_hour_from_now:
